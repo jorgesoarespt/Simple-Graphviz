@@ -1,0 +1,31 @@
+version: '3'
+services: 
+    api-service:
+        build: ./api-gviz/
+        container_name: c-api-gviz
+        volumes: 
+            - ./api-gviz/:/usr/src/app/
+        ports: 
+            - 5000:5000
+    web-service:
+        build: ./web-gviz/
+        container_name: c-web-gviz
+        volumes:
+        # Bind mount that mounts our application code on the host to the /usr/src/app directory on the container. 
+        # This will facilitate rapid development, since any changes you make to your host code will be populated immediately in the container.
+         - ./web-gviz/:/usr/src/app
+        #Is a named volume, node_modules. 
+        # When Docker runs the npm install instruction listed in the application Dockerfile, npm will create a new node_modules directory on the container 
+        # that includes the packages required to run the application. 
+        # The bind mount we just created will hide this newly created node_modules directory, however. 
+        # Since node_modules on the host is empty, the bind will map an empty directory to the container, 
+        # overriding the new node_modules directory and preventing our application from starting. 
+        # The named node_modules volume solves this problem by persisting the contents of the 
+        # /home/node/app/node_modules directory and mounting it to the container, hiding the bind.
+         - node_modules:/usr/src/app/node_modules         
+        command: npm run start
+        ports:
+          - 8089:8089
+volumes:
+    node_modules:
+      
